@@ -7,7 +7,7 @@ import { Input } from '../ui/Input'
 import { Skeleton } from '../ui/Skeleton'
 
 /**
- * Comment item component
+ * Comment item component with DCInside-inspired styling
  */
 const CommentItem = ({ comment, postId, onReply }) => {
   const { user, isAuthenticated } = useAuthStore()
@@ -32,49 +32,57 @@ const CommentItem = ({ comment, postId, onReply }) => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString)
-    return date.toLocaleString('ko-KR')
+    return date.toLocaleString('ko-KR', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
   return (
-    <div className="py-3 border-b last:border-b-0">
+    <div className="py-2.5 px-3">
       <div className="flex items-start gap-3">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-medium text-sm">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="font-medium text-sm text-dc-gray-700">
               {comment.author_username || comment.nickname || '익명'}
             </span>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-dc-gray-400">
               {formatDate(comment.created_at)}
             </span>
           </div>
-          <p className="text-sm text-gray-700 mb-2">{comment.content}</p>
-          <div className="flex items-center gap-2">
+          <p className="text-sm text-dc-gray-700 mb-2 leading-relaxed">{comment.content}</p>
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => handleVote(1)}
-              className="text-xs text-gray-500 hover:text-blue-600"
+              className="px-2 py-0.5 text-xs bg-dc-bg-hover border border-dc-gray-200 rounded text-dc-gray-600 hover:bg-dc-blue-50 hover:text-dc-blue-600 hover:border-dc-blue-300 transition-colors"
             >
-              ▲ 추천
+              ▲ {comment.recommend > 0 && comment.recommend}
             </button>
-            <span className="text-xs text-gray-500">{comment.recommend}</span>
             <button
               onClick={() => handleVote(-1)}
-              className="text-xs text-gray-500 hover:text-red-600"
+              className="px-2 py-0.5 text-xs bg-dc-bg-hover border border-dc-gray-200 rounded text-dc-gray-600 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors"
             >
-              ▼ 비추천
+              ▼
             </button>
+            <span className="text-dc-gray-300 mx-1">|</span>
             <button
               onClick={() => onReply(comment.id)}
-              className="text-xs text-blue-600 hover:underline ml-2"
+              className="text-xs text-dc-blue-600 hover:underline"
             >
               답글
             </button>
             {canDelete && (
-              <button
-                onClick={handleDelete}
-                className="text-xs text-red-600 hover:underline ml-2"
-              >
-                삭제
-              </button>
+              <>
+                <span className="text-dc-gray-300">|</span>
+                <button
+                  onClick={handleDelete}
+                  className="text-xs text-red-600 hover:underline"
+                >
+                  삭제
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -146,15 +154,13 @@ const CommentForm = ({ postId, parentId = null, onSuccess }) => {
 }
 
 /**
- * Comment list component
+ * Comment list component with DCInside-inspired styling
  * @param {Object} props
  * @param {number} props.postId
  */
 export const CommentList = ({ postId }) => {
   const { data, isLoading } = useComments(postId)
-  console.log(data)
   const comments = data?.results
-  console.log(comments)
 
   const [replyingTo, setReplyingTo] = useState(null)
 
@@ -187,30 +193,34 @@ export const CommentList = ({ postId }) => {
   })
 
   return (
-    <div className="space-y-6">
-      <div className="border rounded-lg p-4 bg-white">
-        <h3 className="font-semibold mb-4">
-          댓글 {comments?.length || 0}개
-        </h3>
-        <CommentForm postId={postId} />
+    <div className="space-y-4">
+      <div className="border border-dc-gray-200 rounded bg-dc-bg-board">
+        <div className="border-b border-dc-gray-200 bg-dc-bg-hover px-4 py-3">
+          <h3 className="font-semibold text-sm text-dc-gray-800">
+            댓글 {comments?.length || 0}개
+          </h3>
+        </div>
+        <div className="p-4">
+          <CommentForm postId={postId} />
+        </div>
       </div>
 
-      <div className="border rounded-lg bg-white">
+      <div className="border border-dc-gray-200 rounded bg-dc-bg-board overflow-hidden">
         {commentTree.length === 0 ? (
-          <p className="text-center text-gray-500 py-8">
+          <p className="text-center text-dc-gray-500 py-8">
             첫 댓글을 작성해보세요!
           </p>
         ) : (
-          <div className="divide-y">
+          <div className="divide-y divide-dc-gray-200">
             {commentTree.map((comment) => (
-              <div key={comment.id} className="p-4">
+              <div key={comment.id}>
                 <CommentItem
                   comment={comment}
                   postId={postId}
                   onReply={setReplyingTo}
                 />
                 {replyingTo === comment.id && (
-                  <div className="mt-3 ml-6 p-3 bg-gray-50 rounded">
+                  <div className="ml-8 mr-3 mb-3 p-3 bg-dc-bg-hover border border-dc-blue-200 rounded">
                     <CommentForm
                       postId={postId}
                       parentId={comment.id}
@@ -219,15 +229,17 @@ export const CommentList = ({ postId }) => {
                   </div>
                 )}
                 {comment.replies?.length > 0 && (
-                  <div className="ml-6 mt-2 space-y-2 border-l-2 border-gray-200 pl-4">
-                    {comment.replies.map((reply) => (
-                      <CommentItem
-                        key={reply.id}
-                        comment={reply}
-                        postId={postId}
-                        onReply={() => {}}
-                      />
-                    ))}
+                  <div className="ml-8 bg-dc-bg-hover border-l-3 border-l-dc-blue-300">
+                    <div className="divide-y divide-dc-gray-200">
+                      {comment.replies.map((reply) => (
+                        <CommentItem
+                          key={reply.id}
+                          comment={reply}
+                          postId={postId}
+                          onReply={() => {}}
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

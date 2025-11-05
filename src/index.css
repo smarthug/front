@@ -4,36 +4,121 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* DCInside-inspired color tokens */
+    --dc-bg-main: #F8F9FA;
+    --dc-bg-board: #FFFFFF;
+    --dc-bg-hover: #F0F2F5;
+    --dc-bg-header: #E8EDF2;
+    --dc-blue-primary: #3B82F6;
+    --dc-blue-link: #2563EB;
+    --dc-blue-dark: #1D4ED8;
+    --dc-gray-text: #4B5563;
+    --dc-gray-secondary: #6B7280;
+    --dc-gray-border: #E5E7EB;
+    --dc-gray-border-dark: #D1D5DB;
+
+    /* Legacy HSL variables for compatibility */
+    --background: 0 0% 97%;
+    --foreground: 220 13% 32%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --card-foreground: 220 13% 32%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 32%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 13% 32%;
+    --radius: 0.25rem;
   }
 }
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    border-color: var(--dc-gray-border);
   }
+
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: system-ui, -apple-system, sans-serif;
+    background-color: var(--dc-bg-main);
+    color: var(--dc-gray-text);
+    font-family: 'Malgun Gothic', '맑은 고딕', dotum, '돋움', gulim, '굴림', sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  a {
+    color: var(--dc-blue-link);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+@layer components {
+  /* DCInside-style table borders */
+  .dc-table {
+    border: 1px solid var(--dc-gray-border);
+    border-collapse: collapse;
+    width: 100%;
+    background: var(--dc-bg-board);
+  }
+
+  .dc-table th,
+  .dc-table td {
+    border: 1px solid var(--dc-gray-border);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+
+  .dc-table th {
+    background: var(--dc-bg-hover);
+    font-weight: 600;
+    font-size: 0.813rem;
+  }
+
+  .dc-table tr:hover {
+    background: var(--dc-bg-hover);
+  }
+
+  /* DCInside-style bordered sections */
+  .dc-section {
+    border: 1px solid var(--dc-gray-border);
+    background: var(--dc-bg-board);
+  }
+
+  /* DCInside-style button */
+  .dc-btn {
+    border: 1px solid var(--dc-gray-border-dark);
+    background: linear-gradient(to bottom, #FFFFFF 0%, #F5F5F5 100%);
+    padding: 0.375rem 0.875rem;
+    font-size: 0.813rem;
+    font-weight: 500;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .dc-btn:hover {
+    background: linear-gradient(to bottom, #F5F5F5 0%, #EBEBEB 100%);
+    border-color: var(--dc-gray-border-dark);
+  }
+
+  .dc-btn:active {
+    background: #E8E8E8;
+  }
+
+  /* DCInside-style primary button */
+  .dc-btn-primary {
+    background: linear-gradient(to bottom, #5B9BDF 0%, #3B7AC5 100%);
+    border: 1px solid #2563EB;
+    color: white;
+  }
+
+  .dc-btn-primary:hover {
+    background: linear-gradient(to bottom, #4A8BCE 0%, #2A6AB4 100%);
   }
 }

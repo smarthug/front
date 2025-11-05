@@ -1,5 +1,5 @@
 /**
- * Badge component
+ * Badge component with DCInside-inspired styling
  */
 export const Badge = ({
   children,
@@ -8,16 +8,16 @@ export const Badge = ({
   ...props
 }) => {
   const variants = {
-    default: 'bg-blue-100 text-blue-800',
-    secondary: 'bg-gray-100 text-gray-800',
-    success: 'bg-green-100 text-green-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    danger: 'bg-red-100 text-red-800',
+    default: 'bg-dc-blue-100 text-dc-blue-700 border-dc-blue-200',
+    secondary: 'bg-gray-100 text-dc-gray-700 border-dc-gray-200',
+    success: 'bg-green-50 text-green-700 border-green-200',
+    warning: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    danger: 'bg-red-50 text-red-700 border-red-200',
   }
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${variants[variant]} ${className}`}
+      className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium border ${variants[variant]} ${className}`}
       {...props}
     >
       {children}

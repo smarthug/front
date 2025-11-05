@@ -1,10 +1,10 @@
 /**
- * Card component
+ * Card component with DCInside-inspired styling
  */
 export const Card = ({ children, className = '', ...props }) => {
   return (
     <div
-      className={`rounded-lg border bg-white shadow-sm ${className}`}
+      className={`rounded border border-dc-gray-200 bg-dc-bg-board shadow-sm ${className}`}
       {...props}
     >
       {children}
@@ -14,7 +14,7 @@ export const Card = ({ children, className = '', ...props }) => {
 
 export const CardHeader = ({ children, className = '', ...props }) => {
   return (
-    <div className={`flex flex-col space-y-1.5 p-6 ${className}`} {...props}>
+    <div className={`flex flex-col space-y-1.5 p-4 border-b border-dc-gray-200 bg-dc-bg-hover ${className}`} {...props}>
       {children}
     </div>
   )
@@ -23,7 +23,7 @@ export const CardHeader = ({ children, className = '', ...props }) => {
 export const CardTitle = ({ children, className = '', ...props }) => {
   return (
     <h3
-      className={`text-2xl font-semibold leading-none tracking-tight ${className}`}
+      className={`text-lg font-semibold leading-none text-dc-gray-800 ${className}`}
       {...props}
     >
       {children}
@@ -33,7 +33,7 @@ export const CardTitle = ({ children, className = '', ...props }) => {
 
 export const CardDescription = ({ children, className = '', ...props }) => {
   return (
-    <p className={`text-sm text-gray-500 ${className}`} {...props}>
+    <p className={`text-sm text-dc-gray-500 ${className}`} {...props}>
       {children}
     </p>
   )
@@ -41,7 +41,7 @@ export const CardDescription = ({ children, className = '', ...props }) => {
 
 export const CardContent = ({ children, className = '', ...props }) => {
   return (
-    <div className={`p-6 pt-0 ${className}`} {...props}>
+    <div className={`p-4 ${className}`} {...props}>
       {children}
     </div>
   )
@@ -49,7 +49,7 @@ export const CardContent = ({ children, className = '', ...props }) => {
 
 export const CardFooter = ({ children, className = '', ...props }) => {
   return (
-    <div className={`flex items-center p-6 pt-0 ${className}`} {...props}>
+    <div className={`flex items-center p-4 pt-0 ${className}`} {...props}>
       {children}
     </div>
   )

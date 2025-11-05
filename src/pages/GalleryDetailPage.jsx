@@ -15,21 +15,20 @@ export const GalleryDetailPage = () => {
   const { data: gallery, isLoading: galleryLoading } = useGallery(slug)
   const { data: posts, isLoading: postsLoading } = usePosts({ gallery: slug })
   const { isAuthenticated } = useAuthStore()
-  console.log(posts)
 
   if (galleryLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Skeleton className="h-12 w-64 mb-6" />
-        <Skeleton className="h-24 w-full mb-6" />
+      <div className="container mx-auto px-4 py-6">
+        <Skeleton className="h-24 w-full mb-4" />
+        <Skeleton className="h-64 w-full" />
       </div>
     )
   }
 
   if (!gallery) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-red-600">
+      <div className="container mx-auto px-4 py-6">
+        <div className="border border-red-200 bg-red-50 rounded p-4 text-center text-red-600">
           갤러리를 찾을 수 없습니다.
         </div>
       </div>
@@ -37,24 +36,24 @@ export const GalleryDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-6">
       {/* Gallery Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">{gallery.title}</h1>
+      <div className="bg-dc-bg-board border border-dc-gray-200 rounded p-4 mb-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <h1 className="text-xl font-bold text-dc-gray-800 mb-1">{gallery.title}</h1>
             {gallery.description && (
-              <p className="text-gray-600">{gallery.description}</p>
+              <p className="text-sm text-dc-gray-500">{gallery.description}</p>
             )}
           </div>
           <Link to={`/g/${slug}/write`}>
-            <Button>
+            <Button size="sm">
               글쓰기
             </Button>
           </Link>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 pt-2 border-t border-dc-gray-200">
           {gallery.is_anonymous && (
             <Badge variant="default">익명 게시 가능</Badge>
           )}
@@ -66,23 +65,34 @@ export const GalleryDetailPage = () => {
 
       {/* Posts List */}
       {postsLoading ? (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} className="h-24" />
+            <Skeleton key={i} className="h-16" />
           ))}
         </div>
       ) : posts?.results?.length === 0 ? (
-        <div className="text-center py-12 border rounded-lg bg-gray-50">
-          <p className="text-gray-500 mb-4">아직 게시글이 없습니다.</p>
+        <div className="border border-dc-gray-200 bg-dc-bg-board rounded p-12 text-center">
+          <p className="text-dc-gray-500 mb-4">아직 게시글이 없습니다.</p>
           <Link to={`/g/${slug}/write`}>
             <Button>첫 게시글 작성하기</Button>
           </Link>
         </div>
       ) : (
-        <div className="space-y-3">
-          {posts?.results?.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
+        <div className="border border-dc-gray-200 bg-dc-bg-board rounded overflow-hidden">
+          {/* Table Header */}
+          <div className="hidden sm:flex items-center bg-dc-bg-hover border-b border-dc-gray-200 text-xs font-medium text-dc-gray-700">
+            <div className="w-12 py-2 text-center border-r border-dc-gray-200">번호</div>
+            <div className="flex-1 px-3 py-2">제목</div>
+            <div className="hidden md:block w-24 px-3 py-2 border-l border-dc-gray-200">글쓴이</div>
+            <div className="w-28 px-3 py-2 border-l border-dc-gray-200">작성일</div>
+            <div className="hidden md:block w-16 px-3 py-2 text-center border-l border-dc-gray-200">조회</div>
+          </div>
+          {/* Post Rows */}
+          <div>
+            {posts?.results?.map((post, idx) => (
+              <PostCard key={post.id} post={post} index={posts.results.length - idx} />
+            ))}
+          </div>
         </div>
       )}
     </div>
