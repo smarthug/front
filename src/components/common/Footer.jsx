@@ -1,40 +1,155 @@
 import { Link } from 'react-router-dom'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 
-/**
- * Site footer with DCInside-inspired styling
- */
 export const Footer = () => {
   return (
-    <footer className="mt-12 border-t-2 border-dc-gray-200 bg-dc-gray-600 text-white">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-gray-300">
-            <p className="mb-1">디시 클론 - DCInside Clone Gallery</p>
-            <p className="text-xs text-gray-400">
-              Educational project inspired by DCInside
-            </p>
-          </div>
-
-          <nav className="flex gap-4 text-sm">
-            <Link
-              to="/"
-              className="text-gray-300 hover:text-white hover:no-underline transition-colors"
-            >
-              갤러리
-            </Link>
-            <Link
-              to="/hot"
-              className="text-gray-300 hover:text-white hover:no-underline transition-colors"
-            >
-              핫게시물
-            </Link>
-          </nav>
-        </div>
-
-        <div className="mt-4 pt-4 border-t border-gray-500 text-center text-xs text-gray-400">
-          <p>© 2025 DC Clone. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
+    <Box
+      component="footer"
+      sx={{
+        mb: { xs: 8, md: 0 },
+        mt: 5,
+        borderTop: 1,
+        borderColor: 'divider',
+        bgcolor: 'background.paper',
+        color: 'grey.500',
+      }}
+    >
+      <Box
+        sx={{
+          maxWidth: 1152,
+          mx: 'auto',
+          px: 2,
+          py: 3,
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { md: 'center' },
+          justifyContent: { md: 'space-between' },
+          gap: 2,
+        }}
+      >
+        <Box sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            color="grey.700"
+            sx={{ mb: 0.5 }}
+          >
+            디시클론 - DCInside Community Replica
+          </Typography>
+          <Typography
+            variant="caption"
+            color="grey.400"
+            sx={{ fontSize: { xs: '0.6875rem', sm: '0.75rem' } }}
+          >
+            본 서비스는 학습용 프로젝트이며 디시인사이드와 무관합니다.
+          </Typography>
+        </Box>
+        <Box
+          component="nav"
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: 1.5,
+            fontSize: { xs: '0.75rem', sm: '0.875rem' },
+          }}
+        >
+          <Typography
+            component={Link}
+            to="/"
+            variant="body2"
+            sx={{
+              color: 'inherit',
+              textDecoration: 'none',
+              '&:hover': {
+                color: 'primary.dark',
+                textDecoration: 'none',
+              },
+            }}
+          >
+            갤러리 목록
+          </Typography>
+          <Typography
+            variant="body2"
+            color="grey.300"
+            sx={{ display: { xs: 'none', sm: 'inline' } }}
+          >
+            |
+          </Typography>
+          <Typography
+            component={Link}
+            to="/hot"
+            variant="body2"
+            sx={{
+              color: 'inherit',
+              textDecoration: 'none',
+              '&:hover': {
+                color: 'primary.dark',
+                textDecoration: 'none',
+              },
+            }}
+          >
+            인기 게시글
+          </Typography>
+          <Typography
+            variant="body2"
+            color="grey.300"
+            sx={{ display: { xs: 'none', sm: 'inline' } }}
+          >
+            |
+          </Typography>
+          <Typography
+            component={Link}
+            to="/login"
+            variant="body2"
+            sx={{
+              color: 'inherit',
+              textDecoration: 'none',
+              '&:hover': {
+                color: 'primary.dark',
+                textDecoration: 'none',
+              },
+            }}
+          >
+            로그인
+          </Typography>
+          <Typography
+            variant="body2"
+            color="grey.300"
+            sx={{ display: { xs: 'none', sm: 'inline' } }}
+          >
+            |
+          </Typography>
+          <Typography
+            component={Link}
+            to="/register"
+            variant="body2"
+            sx={{
+              color: 'inherit',
+              textDecoration: 'none',
+              '&:hover': {
+                color: 'primary.dark',
+                textDecoration: 'none',
+              },
+            }}
+          >
+            회원가입
+          </Typography>
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          borderTop: 1,
+          borderColor: 'divider',
+          py: 1.5,
+          textAlign: 'center',
+          fontSize: { xs: '0.6875rem', sm: '0.75rem' },
+          color: 'grey.400',
+        }}
+      >
+        © {new Date().getFullYear()} DC Clone. All rights reserved.
+      </Box>
+    </Box>
   )
 }

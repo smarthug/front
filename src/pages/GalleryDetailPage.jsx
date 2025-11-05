@@ -1,34 +1,98 @@
-import { useParams, Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useGallery } from '../hooks/useGalleries'
 import { usePosts } from '../hooks/usePosts'
-import { useAuthStore } from '../store/authStore'
 import { PostCard } from '../components/common/PostCard'
 import { Button } from '../components/ui/Button'
 import { Skeleton } from '../components/ui/Skeleton'
-import { Badge } from '../components/ui/Badge'
 
-/**
- * Gallery detail page - shows posts in a specific gallery
- */
+const BOARD_TABS = [
+  { id: 'all', label: '전체' },
+  { id: 'best', label: '개념글' },
+  { id: 'notice', label: '공지' },
+  { id: 'media', label: '30개 ▼' },
+]
+
+const GalleryHeader = ({ gallery, slug }) => {
+  return (
+    <div className="rounded border border-dc-bg-divider bg-white shadow-dc-card">
+      <div className="flex flex-col gap-4 px-5 py-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h1 className="flex items-center gap-2 text-xl font-bold text-dc-navy-800">
+              {gallery.title}
+              <span className="text-xs font-medium text-dc-gray-500">
+                ({gallery.slug})
+              </span>
+            </h1>
+            {gallery.description ? (
+              <p className="text-sm text-dc-gray-600">{gallery.description}</p>
+            ) : (
+              <p className="text-sm text-dc-gray-500">
+                갤러리 소개 문구가 없습니다.
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 text-xs text-dc-gray-500">
+            <button
+              type="button"
+              className="rounded border border-dc-bg-divider px-2 py-1 hover:bg-dc-bg-hover"
+            >
+              설정
+            </button>
+            <button
+              type="button"
+              className="rounded border border-dc-bg-divider px-2 py-1 hover:bg-dc-bg-hover"
+            >
+              연관
+            </button>
+            <Link to={`/g/${slug}/write`}>
+              <Button size="sm" className="px-4">
+                글쓰기
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 rounded border border-dc-bg-divider bg-dc-bg-hover px-4 py-3 text-xs text-dc-gray-600">
+          <span className="dc-chip">유의사항</span>
+          <span>익명 글쓰기가 {gallery.is_anonymous ? '가능' : '불가능'}합니다.</span>
+          <span>/</span>
+          <span>이미지 첨부 {gallery.allow_images ? '가능' : '불가'}</span>
+          <span className="ml-auto text-dc-gray-400">즐겨찾기 추가 +</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export const GalleryDetailPage = () => {
   const { slug } = useParams()
-  const { data: gallery, isLoading: galleryLoading } = useGallery(slug)
-  const { data: posts, isLoading: postsLoading } = usePosts({ gallery: slug })
-  const { isAuthenticated } = useAuthStore()
+  const {
+    data: gallery,
+    isLoading: galleryLoading,
+    isError: galleryError,
+  } = useGallery(slug)
+  const {
+    data: postData,
+    isLoading: postsLoading,
+    isError: postsError,
+  } = usePosts({ gallery: slug })
+
+  const posts = postData?.results || []
 
   if (galleryLoading) {
     return (
-      <div className="container mx-auto px-4 py-6">
-        <Skeleton className="h-24 w-full mb-4" />
+      <div className="mx-auto max-w-6xl px-4 py-6">
+        <Skeleton className="mb-4 h-28 w-full" />
         <Skeleton className="h-64 w-full" />
       </div>
     )
   }
 
-  if (!gallery) {
+  if (galleryError || !gallery) {
     return (
-      <div className="container mx-auto px-4 py-6">
-        <div className="border border-red-200 bg-red-50 rounded p-4 text-center text-red-600">
+      <div className="mx-auto max-w-6xl px-4 py-6">
+        <div className="rounded border border-red-200 bg-red-50 p-6 text-center text-red-600">
           갤러리를 찾을 수 없습니다.
         </div>
       </div>
@@ -36,65 +100,104 @@ export const GalleryDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      {/* Gallery Header */}
-      <div className="bg-dc-bg-board border border-dc-gray-200 rounded p-4 mb-4">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-dc-gray-800 mb-1">{gallery.title}</h1>
-            {gallery.description && (
-              <p className="text-sm text-dc-gray-500">{gallery.description}</p>
-            )}
-          </div>
-          <Link to={`/g/${slug}/write`}>
-            <Button size="sm">
-              글쓰기
-            </Button>
-          </Link>
-        </div>
+    <div className="mx-auto max-w-6xl px-4 py-6 space-y-4">
+      <GalleryHeader gallery={gallery} slug={slug} />
 
-        <div className="flex gap-2 pt-2 border-t border-dc-gray-200">
-          {gallery.is_anonymous && (
-            <Badge variant="default">익명 게시 가능</Badge>
-          )}
-          {gallery.allow_images && (
-            <Badge variant="success">이미지 첨부 가능</Badge>
-          )}
-        </div>
+      <div className="rounded border border-dc-bg-divider bg-white px-4 py-3 text-xs text-dc-gray-500 shadow-inner">
+        <span className="mr-2 rounded bg-dc-bg-hover px-2 py-1 text-[11px] font-semibold text-dc-gray-600">
+          AD
+        </span>
+        <span>스폰서 배너 영역입니다.</span>
       </div>
 
-      {/* Posts List */}
-      {postsLoading ? (
-        <div className="space-y-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} className="h-16" />
+      <div className="rounded border border-dc-bg-divider bg-white">
+        <div className="grid grid-cols-4 border-b border-dc-bg-divider text-center text-xs font-semibold text-dc-gray-600 sm:hidden">
+          {BOARD_TABS.map((tab, index) => (
+            <div
+              key={tab.id}
+              className={`py-2 ${
+                index === 0 ? 'dc-tab-active' : 'dc-tab-inactive'
+              }`}
+            >
+              {tab.label}
+            </div>
           ))}
         </div>
-      ) : posts?.results?.length === 0 ? (
-        <div className="border border-dc-gray-200 bg-dc-bg-board rounded p-12 text-center">
-          <p className="text-dc-gray-500 mb-4">아직 게시글이 없습니다.</p>
-          <Link to={`/g/${slug}/write`}>
-            <Button>첫 게시글 작성하기</Button>
-          </Link>
-        </div>
-      ) : (
-        <div className="border border-dc-gray-200 bg-dc-bg-board rounded overflow-hidden">
-          {/* Table Header */}
-          <div className="hidden sm:flex items-center bg-dc-bg-hover border-b border-dc-gray-200 text-xs font-medium text-dc-gray-700">
-            <div className="w-12 py-2 text-center border-r border-dc-gray-200">번호</div>
-            <div className="flex-1 px-3 py-2">제목</div>
-            <div className="hidden md:block w-24 px-3 py-2 border-l border-dc-gray-200">글쓴이</div>
-            <div className="w-28 px-3 py-2 border-l border-dc-gray-200">작성일</div>
-            <div className="hidden md:block w-16 px-3 py-2 text-center border-l border-dc-gray-200">조회</div>
+        <div className="hidden items-center gap-6 border-b border-dc-bg-divider bg-dc-bg-hover px-4 py-3 text-sm font-semibold text-dc-gray-600 sm:flex">
+          {BOARD_TABS.map((tab, index) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={`px-1 pb-1 ${
+                index === 0
+                  ? 'dc-tab-active border-b-2 border-dc-yellow-500'
+                  : 'dc-tab-inactive'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+          <div className="ml-auto flex items-center gap-2 text-xs text-dc-gray-500">
+            <span>정렬</span>
+            <button
+              type="button"
+              className="rounded border border-dc-bg-divider px-2 py-1 hover:bg-dc-bg-main"
+            >
+              최신순
+            </button>
+            <button
+              type="button"
+              className="rounded border border-dc-bg-divider px-2 py-1 hover:bg-dc-bg-main"
+            >
+              조회순
+            </button>
           </div>
-          {/* Post Rows */}
-          <div>
-            {posts?.results?.map((post, idx) => (
-              <PostCard key={post.id} post={post} index={posts.results.length - idx} />
+        </div>
+
+        {postsLoading ? (
+          <div className="space-y-2 px-4 py-6">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-16 w-full" />
             ))}
           </div>
-        </div>
-      )}
+        ) : postsError ? (
+          <div className="px-4 py-10 text-center text-sm text-red-500">
+            게시글을 불러오는데 실패했습니다.
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="px-4 py-10 text-center text-sm text-dc-gray-500">
+            아직 게시글이 없습니다. 첫 글을 작성해 보세요!
+          </div>
+        ) : (
+          <div>
+            <div className="hidden bg-dc-bg-hover text-xs font-semibold text-dc-gray-600 sm:grid sm:grid-cols-[70px_auto_140px_100px_70px_70px]">
+              <div className="border-r border-dc-bg-divider py-2 text-center">
+                번호
+              </div>
+              <div className="py-2 pl-4">제목</div>
+              <div className="border-l border-dc-bg-divider py-2 text-center">
+                닉네임
+              </div>
+              <div className="border-l border-dc-bg-divider py-2 text-center">
+                작성일
+              </div>
+              <div className="border-l border-dc-bg-divider py-2 text-center">
+                조회
+              </div>
+              <div className="border-l border-dc-bg-divider py-2 text-center text-dc-red-500">
+                추천
+              </div>
+            </div>
+            {posts.map((post, idx) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                index={posts.length - idx}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,18 +1,32 @@
 import { useState } from 'react'
-import { useComments, useCreateComment, useVoteComment, useDeleteComment } from '../../hooks/useComments'
+import {
+  useComments,
+  useCreateComment,
+  useVoteComment,
+  useDeleteComment,
+} from '../../hooks/useComments'
 import { useAuthStore } from '../../store/authStore'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Textarea'
 import { Input } from '../ui/Input'
 import { Skeleton } from '../ui/Skeleton'
 
-/**
- * Comment item component with DCInside-inspired styling
- */
-const CommentItem = ({ comment, postId, onReply }) => {
+const formatTimestamp = (value) => {
+  const date = new Date(value)
+  return date.toLocaleString('ko-KR', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+const CommentActions = ({ comment, postId, onReply }) => {
   const { user, isAuthenticated } = useAuthStore()
   const voteComment = useVoteComment()
   const deleteComment = useDeleteComment()
+
+  const canDelete = user && (user.id === comment.author || user.is_staff)
 
   const handleVote = (value) => {
     if (!isAuthenticated()) {
@@ -28,80 +42,77 @@ const CommentItem = ({ comment, postId, onReply }) => {
     }
   }
 
-  const canDelete = user && (user.id === comment.author || user.is_staff)
+  return (
+    <div className="mt-2 flex items-center gap-1.5 text-xs text-dc-gray-500">
+      <button
+        type="button"
+        onClick={() => handleVote(1)}
+        className="rounded border border-dc-bg-divider px-2 py-0.5 hover:border-dc-blue-500 hover:text-dc-blue-500"
+      >
+        추천 {comment.recommend > 0 ? comment.recommend : ''}
+      </button>
+      <button
+        type="button"
+        onClick={() => handleVote(-1)}
+        className="rounded border border-dc-bg-divider px-2 py-0.5 hover:border-dc-red-500 hover:text-dc-red-500"
+      >
+        비추천
+      </button>
+      <span className="text-dc-gray-300">|</span>
+      <button
+        type="button"
+        onClick={() => onReply(comment.id)}
+        className="px-2 py-0.5 hover:text-dc-blue-600"
+      >
+        답글
+      </button>
+      {canDelete && (
+        <>
+          <span className="text-dc-gray-300">|</span>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="px-2 py-0.5 hover:text-dc-red-500"
+          >
+            삭제
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleString('ko-KR', {
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+const CommentItem = ({ comment, postId, onReply }) => {
+  const nickname = comment.author_username || comment.nickname || '익명'
 
   return (
-    <div className="py-2.5 px-3">
-      <div className="flex items-start gap-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="font-medium text-sm text-dc-gray-700">
-              {comment.author_username || comment.nickname || '익명'}
-            </span>
-            <span className="text-xs text-dc-gray-400">
-              {formatDate(comment.created_at)}
-            </span>
-          </div>
-          <p className="text-sm text-dc-gray-700 mb-2 leading-relaxed">{comment.content}</p>
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => handleVote(1)}
-              className="px-2 py-0.5 text-xs bg-dc-bg-hover border border-dc-gray-200 rounded text-dc-gray-600 hover:bg-dc-blue-50 hover:text-dc-blue-600 hover:border-dc-blue-300 transition-colors"
-            >
-              ▲ {comment.recommend > 0 && comment.recommend}
-            </button>
-            <button
-              onClick={() => handleVote(-1)}
-              className="px-2 py-0.5 text-xs bg-dc-bg-hover border border-dc-gray-200 rounded text-dc-gray-600 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors"
-            >
-              ▼
-            </button>
-            <span className="text-dc-gray-300 mx-1">|</span>
-            <button
-              onClick={() => onReply(comment.id)}
-              className="text-xs text-dc-blue-600 hover:underline"
-            >
-              답글
-            </button>
-            {canDelete && (
-              <>
-                <span className="text-dc-gray-300">|</span>
-                <button
-                  onClick={handleDelete}
-                  className="text-xs text-red-600 hover:underline"
-                >
-                  삭제
-                </button>
-              </>
-            )}
-          </div>
+    <div className="px-4 py-3">
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-semibold text-dc-gray-700">
+            {nickname}
+          </span>
+          <span className="text-xs text-dc-gray-400">
+            {formatTimestamp(comment.created_at)}
+          </span>
         </div>
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-dc-gray-700">
+          {comment.content}
+        </p>
+        <CommentActions comment={comment} postId={postId} onReply={onReply} />
       </div>
     </div>
   )
 }
 
-/**
- * Comment form component
- */
-const CommentForm = ({ postId, parentId = null, onSuccess }) => {
+const CommentForm = ({ postId, parentId, onSuccess }) => {
   const [content, setContent] = useState('')
   const [nickname, setNickname] = useState('')
   const { isAuthenticated } = useAuthStore()
   const createComment = useCreateComment()
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = (event) => {
+    event.preventDefault()
 
     if (!content.trim()) {
       alert('댓글 내용을 입력해주세요.')
@@ -113,18 +124,18 @@ const CommentForm = ({ postId, parentId = null, onSuccess }) => {
       return
     }
 
-    const commentData = {
+    const payload = {
       post: postId,
       content: content.trim(),
       ...(parentId && { parent: parentId }),
       ...(!isAuthenticated() && { nickname: nickname.trim() }),
     }
 
-    createComment.mutate(commentData, {
+    createComment.mutate(payload, {
       onSuccess: () => {
         setContent('')
         setNickname('')
-        if (onSuccess) onSuccess()
+        onSuccess?.()
       },
     })
   }
@@ -135,33 +146,27 @@ const CommentForm = ({ postId, parentId = null, onSuccess }) => {
         <Input
           placeholder="닉네임"
           value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
+          onChange={(event) => setNickname(event.target.value)}
           required
         />
       )}
       <Textarea
-        placeholder="댓글을 입력하세요"
+        placeholder="댓글을 입력해주세요."
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={(event) => setContent(event.target.value)}
         rows={3}
         required
       />
       <Button type="submit" disabled={createComment.isPending}>
-        {createComment.isPending ? '작성 중...' : '댓글 작성'}
+        {createComment.isPending ? '작성 중…' : '댓글 작성'}
       </Button>
     </form>
   )
 }
 
-/**
- * Comment list component with DCInside-inspired styling
- * @param {Object} props
- * @param {number} props.postId
- */
 export const CommentList = ({ postId }) => {
   const { data, isLoading } = useComments(postId)
-  const comments = data?.results
-
+  const comments = data?.results || []
   const [replyingTo, setReplyingTo] = useState(null)
 
   if (isLoading) {
@@ -174,18 +179,16 @@ export const CommentList = ({ postId }) => {
     )
   }
 
-  // Build comment tree (parent and replies)
-  const commentTree = comments?.reduce((acc, comment) => {
-    if (!comment.parent) {
-      acc.push({ ...comment, replies: [] })
+  const tree = comments.reduce((list, current) => {
+    if (!current.parent) {
+      list.push({ ...current, replies: [] })
     }
-    return acc
-  }, []) || []
+    return list
+  }, [])
 
-  // Add replies to parents
-  comments?.forEach((comment) => {
+  comments.forEach((comment) => {
     if (comment.parent) {
-      const parent = commentTree.find((c) => c.id === comment.parent)
+      const parent = tree.find((item) => item.id === comment.parent)
       if (parent) {
         parent.replies.push(comment)
       }
@@ -194,25 +197,25 @@ export const CommentList = ({ postId }) => {
 
   return (
     <div className="space-y-4">
-      <div className="border border-dc-gray-200 rounded bg-dc-bg-board">
-        <div className="border-b border-dc-gray-200 bg-dc-bg-hover px-4 py-3">
-          <h3 className="font-semibold text-sm text-dc-gray-800">
-            댓글 {comments?.length || 0}개
+      <div className="rounded border border-dc-bg-divider bg-white">
+        <div className="border-b border-dc-bg-divider bg-dc-bg-hover px-4 py-3">
+          <h3 className="text-sm font-semibold text-dc-gray-800">
+            댓글 {comments.length}개
           </h3>
         </div>
-        <div className="p-4">
+        <div className="px-4 py-4">
           <CommentForm postId={postId} />
         </div>
       </div>
 
-      <div className="border border-dc-gray-200 rounded bg-dc-bg-board overflow-hidden">
-        {commentTree.length === 0 ? (
-          <p className="text-center text-dc-gray-500 py-8">
+      <div className="overflow-hidden rounded border border-dc-bg-divider bg-white">
+        {tree.length === 0 ? (
+          <p className="py-10 text-center text-sm text-dc-gray-500">
             첫 댓글을 작성해보세요!
           </p>
         ) : (
-          <div className="divide-y divide-dc-gray-200">
-            {commentTree.map((comment) => (
+          <div className="divide-y divide-dc-bg-divider">
+            {tree.map((comment) => (
               <div key={comment.id}>
                 <CommentItem
                   comment={comment}
@@ -220,7 +223,7 @@ export const CommentList = ({ postId }) => {
                   onReply={setReplyingTo}
                 />
                 {replyingTo === comment.id && (
-                  <div className="ml-8 mr-3 mb-3 p-3 bg-dc-bg-hover border border-dc-blue-200 rounded">
+                  <div className="ml-8 mr-4 rounded border border-dc-bg-divider bg-dc-bg-hover px-3 py-3">
                     <CommentForm
                       postId={postId}
                       parentId={comment.id}
@@ -229,17 +232,15 @@ export const CommentList = ({ postId }) => {
                   </div>
                 )}
                 {comment.replies?.length > 0 && (
-                  <div className="ml-8 bg-dc-bg-hover border-l-3 border-l-dc-blue-300">
-                    <div className="divide-y divide-dc-gray-200">
-                      {comment.replies.map((reply) => (
-                        <CommentItem
-                          key={reply.id}
-                          comment={reply}
-                          postId={postId}
-                          onReply={() => {}}
-                        />
-                      ))}
-                    </div>
+                  <div className="ml-6 border-l-2 border-dc-bg-divider bg-dc-bg-hover">
+                    {comment.replies.map((reply) => (
+                      <CommentItem
+                        key={reply.id}
+                        comment={reply}
+                        postId={postId}
+                        onReply={() => {}}
+                      />
+                    ))}
                   </div>
                 )}
               </div>
