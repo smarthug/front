@@ -1,8 +1,9 @@
 import { Link, useParams } from 'react-router-dom'
 import { useGallery } from '../hooks/useGalleries'
+import { usePosts } from '../hooks/usePosts'
+import { PostCard } from '../components/common/PostCard'
 import { Button } from '../components/ui/Button'
 import { Skeleton } from '../components/ui/Skeleton'
-import BoardTable from '../components/common/BoardTable'
 
 const BOARD_TABS = [
   { id: 'all', label: '전체' },
@@ -71,6 +72,13 @@ export const GalleryDetailPage = () => {
     isLoading: galleryLoading,
     isError: galleryError,
   } = useGallery(slug)
+  const {
+    data: postData,
+    isLoading: postsLoading,
+    isError: postsError,
+  } = usePosts({ gallery: slug })
+
+  const posts = postData?.results || []
 
   if (galleryLoading) {
     return (
@@ -146,7 +154,49 @@ export const GalleryDetailPage = () => {
           </div>
         </div>
 
-        <BoardTable gallerySlug={slug} />
+        {postsLoading ? (
+          <div className="space-y-2 px-4 py-6">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-16 w-full" />
+            ))}
+          </div>
+        ) : postsError ? (
+          <div className="px-4 py-10 text-center text-sm text-red-500">
+            게시글을 불러오는데 실패했습니다.
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="px-4 py-10 text-center text-sm text-dc-gray-500">
+            아직 게시글이 없습니다. 첫 글을 작성해 보세요!
+          </div>
+        ) : (
+          <div>
+            <div className="hidden bg-dc-bg-hover text-xs font-semibold text-dc-gray-600 sm:grid sm:grid-cols-[70px_auto_140px_100px_70px_70px]">
+              <div className="border-r border-dc-bg-divider py-2 text-center">
+                번호
+              </div>
+              <div className="py-2 pl-4">제목</div>
+              <div className="border-l border-dc-bg-divider py-2 text-center">
+                닉네임
+              </div>
+              <div className="border-l border-dc-bg-divider py-2 text-center">
+                작성일
+              </div>
+              <div className="border-l border-dc-bg-divider py-2 text-center">
+                조회
+              </div>
+              <div className="border-l border-dc-bg-divider py-2 text-center text-dc-red-500">
+                추천
+              </div>
+            </div>
+            {posts.map((post, idx) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                index={posts.length - idx}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
